@@ -1,0 +1,46 @@
+List of albums: [
+    {
+        "id": "1",
+        "name": "car",
+        "image": [
+            {
+                "id": "1",
+                "name": "amaze"
+            },
+            {
+                "id": "2",
+                "name": "ciaz"
+            }
+        ]
+    },
+    {
+        "id": "2",
+        "name": "bike",
+        "image": [
+            {
+                "id": "1",
+                "name": "apache"
+            }
+        ]
+    },
+    {
+        "id": "3",
+        "name": "mountain",
+        "image": [
+            {
+                "id": "1",
+                "name": "everest"
+            }
+        ]
+    },
+    {
+        "id": "4",
+        "name": "ocean",
+        "image": [
+            {
+                "id": "1",
+                "name": "pacific"
+            }
+        ]
+    }
+]
