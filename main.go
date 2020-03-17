@@ -5,27 +5,22 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"log"
-	"math/rand"
 	"net/http"
-	"strconv"
 )
 
 type Albums struct {
-	Id string `json:"id"`
 	Name string `json:"name"`
-	//Image Image `json:"image"`
 	Image []Image `json:"image"`
 }
 
 type Image struct {
-	Id string `json:"id"`
 	Name string `json:"name"`
 }
 
 var albums []Albums
 
 //OK
-//Show all album names
+//Show all albums
 func showAlbum(w http.ResponseWriter, r *http.Request){
 	fmt.Fprintf(w, "List of albums: ")
 	json.NewEncoder(w).Encode(albums)
@@ -37,8 +32,11 @@ func addAlbum(w http.ResponseWriter, r *http.Request){
 	fmt.Fprintf(w, "Add Album")
 	w.Header().Set("Content-Type","application/json")
 	var album Albums
-	_ = json.NewDecoder(r.Body).Decode(album)
-	album.Id = strconv.Itoa(rand.Intn(100))
+	err := json.NewDecoder(r.Body).Decode(&album)
+	if err != nil {
+		fmt.Println("ERROR:",err)
+		return
+	}
 	albums = append(albums, album)
 	json.NewEncoder(w).Encode(album)
 }
@@ -94,10 +92,8 @@ func showImage(w http.ResponseWriter, r *http.Request) {
 func addImage(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Add Image")
 	w.Header().Set("Content-Type","application/json")
-	//albums = append(albums, Albums{Id: "1", Name: "Car", Image: {Id: "1", Name: "Honda"}})
 	var album Albums
 	_ = json.NewDecoder(r.Body).Decode(album)
-	album.Id = strconv.Itoa(rand.Intn(100))
 	albums = append(albums, album)
 	json.NewEncoder(w).Encode(album)
 }
@@ -122,13 +118,12 @@ func main() {
 	myRouter := mux.NewRouter().StrictSlash(true)
 
 	//Sample Data
-	albums = append(albums, Albums{Id: "1", Name: "car", Image: []Image{{Id: "1", Name: "amaze"},{Id: "2", Name: "ciaz"}}})
-	//albums = append(albums, Albums{Id: "1", Name: "car", Image: Image{Id: "2", Name: "ciaz"}})
-	albums = append(albums, Albums{Id: "2", Name: "bike", Image: []Image{{Id: "1", Name: "apache"}}})
-	albums = append(albums, Albums{Id: "3", Name: "mountain", Image: []Image{{Id: "1", Name: "everest"}}})
-	albums = append(albums, Albums{Id: "4", Name: "ocean", Image: []Image{{Id: "1", Name: "pacific"}}})
+	albums = append(albums, Albums{Name: "car", Image: []Image{{Name: "amaze"},{Name: "ciaz"}}})
+	albums = append(albums, Albums{Name: "bike", Image: []Image{{Name: "apache"}}})
+	albums = append(albums, Albums{Name: "mountain", Image: []Image{{Name: "everest"}}})
+	albums = append(albums, Albums{Name: "ocean", Image: []Image{{Name: "pacific"}}})
 
-	//Show album names
+	//Show all albums
 	myRouter.HandleFunc("/",showAlbum).Methods(http.MethodGet)
 	//Create a new album
 	myRouter.HandleFunc("/{album}",addAlbum).Methods(http.MethodPost)
