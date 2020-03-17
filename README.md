@@ -5,23 +5,23 @@ Creating a simple REST API to create/delete albums and create/delete images in t
 ENDPOINTS:
 ==========
 
-#Show all albums
+#Show all albums: 
 GET /
 
-#Create a new album
+#Create a new album: 
 POST /{album}
 
-#Delete an existing album
+#Delete an existing album: 
 DELETE /{album}
 
-#Show all images in an album
+#Show all images in an album: 
 GET /{album}
 
-#Show a particular image inside an album
+#Show a particular image inside an album: 
 GET /{album}/{image}
 
-#Create an image in an album
+#Create an image in an album: 
 POST /{album}/{image}
 
-#Delete an image in an album
+#Delete an image in an album: 
 DELETE /{album}/{image}
