@@ -22,80 +22,88 @@ var albums []Albums
 //OK
 //Show all albums
 func showAlbum(w http.ResponseWriter, r *http.Request){
-	fmt.Fprintf(w, "List of albums: ")
+	fmt.Fprintf(w, "Displaying list of albums:\n")
 	json.NewEncoder(w).Encode(albums)
 }
 
-//TODO
+//OK
 //Create a new album
 func addAlbum(w http.ResponseWriter, r *http.Request){
-	fmt.Fprintf(w, "Add Album")
 	w.Header().Set("Content-Type","application/json")
-	var album Albums
-	err := json.NewDecoder(r.Body).Decode(&album)
-	if err != nil {
-		fmt.Println("ERROR:",err)
-		return
-	}
-	albums = append(albums, album)
-	json.NewEncoder(w).Encode(album)
+	param := mux.Vars(r)
+	fmt.Fprintf(w, "Creating Album",param["album"],"\n")
+	albums = append(albums, Albums{Name: param["album"]})
+	json.NewEncoder(w).Encode(albums)
+	fmt.Fprintf(w, "Album", param["album"],"has been created\n")
 }
 
 //OK
 //Delete an existing album
 func deleteAlbum(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Delete Album")
 	w.Header().Set("Content-Type","application/json")
 	param := mux.Vars(r)
 	for idx, item := range albums {
 		if item.Name == param["album"] {
+			fmt.Fprintf(w, "Deleting Album",param["album"],"\n")
 			albums = append(albums[:idx],albums[idx+1:]...)
 			break
 		}
 	}
-	json.NewEncoder(w).Encode(albums)
+	fmt.Fprintf(w,"ERROR:",param["album"],"album does not exist\n")
 }
 
 //OK
 //Show all images in an album
 func showImagesInAlbum(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Show Album")
 	w.Header().Set("Content-Type","application/json")
-	//Get Album Name
 	param := mux.Vars(r)
 	for _,item := range albums {
 		if item.Name == param["album"] {
+			fmt.Fprintf(w, "Displaying all images in album",param["album"],"\n")
 			json.NewEncoder(w).Encode(item)
 			return
 		}
 	}
-	json.NewEncoder(w).Encode(Albums{})
+	fmt.Fprintf(w, "ERROR:",param["album"],"album does not exist\n")
 }
 
-//TODO
+//OK
 //Show a particular image inside an album
 func showImage(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Show Image")
 	w.Header().Set("Content-Type","application/json")
 	param := mux.Vars(r)
-	for _,item := range albums {
-		if item.Name == param["album"] {
-			json.NewEncoder(w).Encode(item)
-			return
+	for idx:=0; idx < len(albums);idx++ {
+		if albums[idx].Name == param["album"] {
+			for i:=0;i<len(albums[idx].Image);i++ {
+				if albums[idx].Image[i].Name == param["image"] {
+					fmt.Fprintf(w, "Displaying",param["image"],"in album", param["album"],"\n")
+					json.NewEncoder(w).Encode(albums[idx].Image[i])
+					return
+				}
+			}
 		}
 	}
-	json.NewEncoder(w).Encode(Albums{})
+	//TODO: Return Error instead of printing
+	fmt.Fprintf(w, "ERROR:",param["image"],"image does not exist in album",param["album"],"\n")
 }
 
-//TODO
+//OK
 //Create an image in an album
 func addImage(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Add Image")
 	w.Header().Set("Content-Type","application/json")
-	var album Albums
-	_ = json.NewDecoder(r.Body).Decode(album)
-	albums = append(albums, album)
-	json.NewEncoder(w).Encode(album)
+	param := mux.Vars(r)
+	image := Image{Name: param["image"]}
+	for idx,item := range albums {
+		if item.Name == param["album"] {
+			albums[idx].Image = append(albums[idx].Image, image)
+			//Output complete album
+			json.NewEncoder(w).Encode(item.Name)
+			return
+		}
+	}
+	//TODO: Return Error instead of printing
+	fmt.Fprintf(w, "ERROR:",param["album"],"album does not exist. Hence, image",param["image"],"cannot be added.")
 }
 
 //TODO
