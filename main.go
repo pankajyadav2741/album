@@ -22,7 +22,12 @@ var albums []Albums
 //OK
 //Show all albums
 func showAlbum(w http.ResponseWriter, r *http.Request){
-	fmt.Fprintf(w, "Displaying list of albums:\n")
+	fmt.Fprintf(w, "Displaying album names:\n")
+	for _, item := range albums {
+		json.NewEncoder(w).Encode(item.Name)
+	}
+
+	fmt.Fprintf(w, "Displaying full albums:\n")
 	json.NewEncoder(w).Encode(albums)
 }
 
@@ -46,6 +51,7 @@ func deleteAlbum(w http.ResponseWriter, r *http.Request) {
 		if item.Name == param["album"] {
 			fmt.Fprintf(w, "Deleting Album",param["album"],"\n")
 			albums = append(albums[:idx],albums[idx+1:]...)
+			json.NewEncoder(w).Encode(albums)
 			break
 		}
 	}
@@ -77,13 +83,12 @@ func showImage(w http.ResponseWriter, r *http.Request) {
 			for i:=0;i<len(albums[idx].Image);i++ {
 				if albums[idx].Image[i].Name == param["image"] {
 					fmt.Fprintf(w, "Displaying",param["image"],"in album", param["album"],"\n")
-					json.NewEncoder(w).Encode(albums[idx].Image[i])
+					json.NewEncoder(w).Encode(albums[idx].Image)
 					return
 				}
 			}
 		}
 	}
-	//TODO: Return Error instead of printing
 	fmt.Fprintf(w, "ERROR:",param["image"],"image does not exist in album",param["album"],"\n")
 }
 
@@ -97,25 +102,30 @@ func addImage(w http.ResponseWriter, r *http.Request) {
 	for idx,item := range albums {
 		if item.Name == param["album"] {
 			albums[idx].Image = append(albums[idx].Image, image)
-			//Output complete album
-			json.NewEncoder(w).Encode(item.Name)
+			json.NewEncoder(w).Encode(albums)
 			return
 		}
 	}
-	//TODO: Return Error instead of printing
 	fmt.Fprintf(w, "ERROR:",param["album"],"album does not exist. Hence, image",param["image"],"cannot be added.")
 }
 
-//TODO
+//OK
 //Delete an image in an album
 func deleteImage(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Delete Image")
 	w.Header().Set("Content-Type","application/json")
 	param := mux.Vars(r)
+	var alb []Albums
 	for idx, item := range albums {
 		if item.Name == param["album"] {
-			albums = append(albums[:idx],albums[idx+1:]...)
-			break
+			for i:=0;i<len(item.Image);i++ {
+				if item.Image[i].Name == param["image"] {
+					fmt.Fprintf(w, "Deleting",param["image"],"in album", param["album"],"\n")
+					item.Image = append(item.Image[:i],item.Image[i+1:]...)
+					alb = append(albums[:idx], Albums{Name: param["album"], Image: item.Image})
+					albums = append(alb, albums[idx+1:]...)
+					break
+				}
+			}
 		}
 	}
 	json.NewEncoder(w).Encode(albums)
